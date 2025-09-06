@@ -32,15 +32,20 @@ data Histograma = Histograma Float Float [Int]
 -- valores en el rango y 2 casilleros adicionales para los valores fuera del rango.
 -- Require que @l < u@ y @n >= 1@.
 vacio :: Int -> (Float, Float) -> Histograma
-vacio n (l, u) = Histograma l u (replicate (n+2) 0)
+vacio n (l, u) = Histograma l ( (u - l) / fromIntegral n) (replicate (n+2) 0)
 
 -- | Agrega un valor al histograma.
 agregar :: Float -> Histograma -> Histograma
-agregar x _ = error "COMPLETAR EJERCICIO 4"
+agregar i (Histograma f1 f2 l) =  Histograma f1 f2 (actualizarElem ind (+1) l)
+                                  where ind  | i<f1= 0
+                                             | i> (f1 + (f2 * fromIntegral ((length l) - 2))) = (length l) - 1
+                                             | otherwise= floor ((i-f1) / f2) + 1
+
 
 -- | Arma un histograma a partir de una lista de números reales con la cantidad de casilleros y rango indicados.
 histograma :: Int -> (Float, Float) -> [Float] -> Histograma
-histograma n r xs = error "COMPLETAR EJERCICIO 5"
+histograma n r  = foldr agregar (vacio n r) 
+ 
 
 -- | Un `Casillero` representa un casillero del histograma con sus límites, cantidad y porcentaje.
 -- Invariante: Sea @Casillero m1 m2 c p@ entonces @m1 < m2@, @c >= 0@, @0 <= p <= 100@
@@ -65,4 +70,12 @@ casPorcentaje (Casillero _ _ _ p) = p
 
 -- | Dado un histograma, devuelve la lista de casilleros con sus límites, cantidad y porcentaje.
 casilleros :: Histograma -> [Casillero]
-casilleros _ = error "COMPLETAR EJERCICIO 6"
+casilleros = error"ej 6"
+--casilleros Histograma f1 f2 l = foldr Casillero 
+
+
+-- casilleros Histograma f1 f2 l = [Casillero (min) (max) (cant) (%)]
+
+
+--armarCasillero :: [[]] -> Casillero
+
