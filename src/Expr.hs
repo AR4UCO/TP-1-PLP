@@ -25,8 +25,26 @@ data Expr
 -- recrExpr :: ... anotar el tipo ...
 recrExpr = error "COMPLETAR EJERCICIO 7"
 
+
 -- foldExpr :: ... anotar el tipo ...
-foldExpr = error "COMPLETAR EJERCICIO 7"
+foldExpr :: (Float -> b) 
+         -> (Float -> Float -> b) 
+         -> (b -> b -> b) 
+         -> (b -> b -> b) 
+         -> (b -> b -> b) 
+         -> (b -> b -> b) 
+         -> Expr 
+         -> b
+foldExpr f1 f2 f3 f4 f5 f6 a = case a of
+                                Const x -> f1 x
+                                Rango x y -> f2 x y
+                                Suma x y -> f3 (rec x) (rec y)
+                                Resta x y -> f4 (rec x) (rec y)
+                                Mult x y -> f5 (rec x) (rec y)
+                                Div x y -> f6 (rec x) (rec y)
+                              where rec = foldExpr f1 f2 f3 f4 f5 f6
+
+
 
 -- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float
@@ -45,10 +63,10 @@ evalHistograma m n expr = error "COMPLETAR EJERCICIO 10"
 
 -- Podemos armar histogramas que muestren las n evaluaciones en m casilleros.
 -- >>> evalHistograma 11 10 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
--- (Histograma 102.005486 0.6733038 [1,0,0,0,1,3,1,2,0,0,1,1,0],<Gen>)
+-- COMPLETAR EJERCICIO 10
 
 -- >>> evalHistograma 11 10000 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
--- (Histograma 102.273895 0.5878462 [239,288,522,810,1110,1389,1394,1295,1076,793,520,310,254],<Gen>)
+-- COMPLETAR EJERCICIO 10
 
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
