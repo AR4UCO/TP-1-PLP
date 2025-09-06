@@ -24,6 +24,7 @@ module Histograma
 where
 
 import Util
+import Data.List (zipWith4)
 
 data Histograma = Histograma Float Float [Int]
   deriving (Show, Eq)
@@ -36,7 +37,7 @@ vacio n (l, u) = Histograma l ( (u - l) / fromIntegral n) (replicate (n+2) 0)
 
 -- | Agrega un valor al histograma.
 agregar :: Float -> Histograma -> Histograma
-agregar i (Histograma f1 f2 l) =  Histograma f1 f2 (actualizarElem ind (+1) l)
+agregar i (Histograma f1 f2 l) =  Histograma f1 f2 (actualizarElem ind (+1) l)
                                   where ind  | i<f1= 0
                                              | i> (f1 + (f2 * fromIntegral ((length l) - 2))) = (length l) - 1
                                              | otherwise= floor ((i-f1) / f2) + 1
@@ -44,8 +45,8 @@ agregar i (Histograma f1 f2 l) =  Histograma f1 f2 (actualizarElem ind (+1) l)
 
 -- | Arma un histograma a partir de una lista de números reales con la cantidad de casilleros y rango indicados.
 histograma :: Int -> (Float, Float) -> [Float] -> Histograma
-histograma n r  = foldr agregar (vacio n r) 
- 
+histograma n r  = foldr agregar (vacio n r)
+
 
 -- | Un `Casillero` representa un casillero del histograma con sus límites, cantidad y porcentaje.
 -- Invariante: Sea @Casillero m1 m2 c p@ entonces @m1 < m2@, @c >= 0@, @0 <= p <= 100@
@@ -70,12 +71,17 @@ casPorcentaje (Casillero _ _ _ p) = p
 
 -- | Dado un histograma, devuelve la lista de casilleros con sus límites, cantidad y porcentaje.
 casilleros :: Histograma -> [Casillero]
-casilleros = error"ej 6"
---casilleros Histograma f1 f2 l = foldr Casillero 
 
+--casilleros Histograma f1 f2 l = [Casillero (min) (max) (cant) (%)]
 
--- casilleros Histograma f1 f2 l = [Casillero (min) (max) (cant) (%)]
+casilleros (Histograma f1 f2 l) =
+  let
+    minimos = {--crear una lista con los rangos minimos ~> --} infinitoNegativo : [f1, f1+f2..f1+f2* fromIntegral (length l -2)]
+    maximos = {--crear una lista con los rangos maximos ~> --} [f1, f1+f2..f1+f2* fromIntegral (length l -2)] ++ [infinitoPositivo]
+    apariciones = l {--(la lista del histograma)--}
+    promedio l = map (\ x -> fromIntegral x / fromIntegral (sum l)*100) l
+  in zipWith4 Casillero minimos maximos apariciones (promedio l)
 
-
---armarCasillero :: [[]] -> Casillero
+-- casilleros Histograma f1 f2 l = foldr Casillero
+-- armarCasillero :: [[]] -> Casillero
 
