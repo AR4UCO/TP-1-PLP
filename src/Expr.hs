@@ -23,7 +23,24 @@ data Expr
   deriving (Show, Eq)
 
 -- recrExpr :: ... anotar el tipo ...
-recrExpr = error "COMPLETAR EJERCICIO 7"
+recrExpr :: (Float -> b) 
+         -> (Float -> Float -> b) 
+         -> (Expr -> b -> Expr -> b -> b) 
+         -> (Expr -> b -> Expr -> b -> b) 
+         -> (Expr -> b -> Expr -> b -> b) 
+         -> (Expr -> b -> Expr -> b -> b) 
+         -> Expr 
+         -> b
+recrExpr f1 f2 f3 f4 f5 f6 a = case a of
+                               Const x -> f1 x
+                               Rango x y -> f2 x y
+                               Suma x y -> f3 x (rec x) y (rec y)
+                               Resta x y -> f4 x (rec x) y (rec y)
+                               Mult x y -> f5 x (rec x) y (rec y)
+                               Div x y -> f6 x (rec x) y (rec y)
+                              where rec = recrExpr f1 f2 f3 f4 f5 f6
+
+
 
 
 -- foldExpr :: ... anotar el tipo ...
@@ -44,11 +61,32 @@ foldExpr f1 f2 f3 f4 f5 f6 a = case a of
                                 Div x y -> f6 (rec x) (rec y)
                               where rec = foldExpr f1 f2 f3 f4 f5 f6
 
-
-
 -- | Evaluar expresiones dado un generador de números aleatorios
+--eval :: Expr -> G Float
+-- eval :: Expr -> Gen -> (Float, Gen)
+-- eval exp g = case exp of
+--               Const x -> (x,g)
+--               Rango x y -> dameUno (x, y) genFijo
+--               Suma x y -> x + y
+--               Resta x y -> x - y
+--               Mult x y -> x * y
+--               Div x y -> div x y
+
+
+-- x :: expr
+-- x = Suma (Resta (Const 3.0) (Rango (0.0) (2.0))) (Rango (1.0) (5.0))
+
 eval :: Expr -> G Float
-eval = error "COMPLETAR EJERCICIO 8"
+eval = foldExpr 
+                     (\x g -> (x, g)) 
+                     (\x y g-> dameUno (x, y) g) 
+                     (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x + y, g2)) --suma
+                     (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x - y, g2)) --resta
+                     (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x * y, g2)) --mult
+                     (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x / y, g2)) --div
+                                                       
+
+
 
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
 -- a partir del resultado de tomar @n@ muestras de @f@ usando el generador @g@.
