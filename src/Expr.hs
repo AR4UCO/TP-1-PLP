@@ -133,9 +133,6 @@ evalHistograma m n expr g = armarHistograma m n (eval expr) g
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
--- --mostrar = error "COMPLETAR EJERCICIO 11"
-
-
 mostrar = recrExpr 
          (\x -> show x)   --const
          (\x y -> show x ++ " ~ " ++ show y)   --rango ∼
