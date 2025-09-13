@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use infix" #-}
 module Expr
   ( Expr (..),
     recrExpr,
@@ -131,17 +133,43 @@ evalHistograma m n expr g = armarHistograma m n (eval expr) g
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
-mostrar = error "COMPLETAR EJERCICIO 11"
+-- --mostrar = error "COMPLETAR EJERCICIO 11"
 
 
+mostrar = recrExpr 
+         (\x -> show x)   --const
+         (\x y -> show x ++ " ~ " ++ show y)   --rango ∼
+         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CEDiv]) x 
+                                 ++ " + " 
+                                 ++ maybeParen (elem (constructor tipoDeY) [CEMult,CEDiv]) y )   --sum
+         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEMult,CEDiv,CEResta]) x 
+                                 ++  " - " 
+                                 ++ maybeParen (elem (constructor tipoDeY) [CEMult,CEDiv,CEResta]) y)   --rest
+         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CESuma]) x  
+                                 ++ " * " 
+                                 ++ maybeParen (elem (constructor tipoDeY) [CEResta,CESuma]) y )   --mult
+         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CESuma]) x  
+                                 ++ " / " 
+                                 ++ maybeParen (elem (constructor tipoDeY) [CEResta,CESuma]) y )   --div
+                  
 
--- mostrar = recrExpr 
---                   (\x -> show x)   --const
---                   (\x y -> (show x) ++ " ~ " ++ (show y))   --rango ∼
---                   (\TipoDeX x TipoDeY y -> x ++ " + " ++ y )   --sum
---                   ()   --rest
---                   ()   --mult
---                   ()   --div
+
+-- SUMA
+-- mult, div
+
+--RESTA
+-- resta, mult, div
+
+--MULT
+--Resta, suma
+
+--Div
+--resta,suma
+ 
+-- >>> mostrar (Div(Suma(Rango 1 5) (Mult(Const 3) (Rango 100 105))) (Const 2))
+-- "(1.0 ~ 5.0 + (3.0 * 100.0 ~ 105.0)) / 2.0"
+-- >>> mostrar (Resta (Resta (Resta (Const 1) (Const 2)) (Const 3)) (Const 4))
+-- "((1.0 - 2.0) - 3.0) - 4.0"
 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
@@ -160,28 +188,3 @@ maybeParen :: Bool -> String -> String
 maybeParen True s = "(" ++ s ++ ")"
 maybeParen False s = s
 
-
-
-
-
-
-{--
-
-mostrar :: Expr -> String
-mostrar = recrExpr
-  (\x -> show x)                                   -- Const
-  (\x y -> show x ++ "∼" ++ show y)                -- Rango
-  (\ex sx ey sy -> sx ++ " + " ++ sy)              -- Suma
-  (\ex sx ey sy -> maybeParen (constructor ex == CEResta) sx 
-                ++ "- " 
-                ++ maybeParen (constructor ey /= CEConst && constructor ey /= CERango) sy) -- Resta
-  (\ex sx ey sy -> 
-      let izq = maybeParen (constructor ex `elem` [CESuma, CEResta]) sx
-          der = maybeParen (constructor ey `elem` [CESuma, CEResta]) sy
-      in izq ++ " * " ++ der)                      -- Mult
-  (\ex sx ey sy -> 
-      let izq = maybeParen (constructor ex /= CEConst && constructor ex /= CERango) sx
-          der = maybeParen True sy
-      in izq ++ " / " ++ der)                      -- Div
-
---}
