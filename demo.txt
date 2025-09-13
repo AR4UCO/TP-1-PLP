@@ -1,36 +1,5 @@
-	data Nat = Z | S Nat
-
-suma :: Nat → Nat → Nat
-suma Z m = m -- { S1 }
-suma ( S n ) m = S ( suma n m ) -- { S2 }
-
-cantLit :: Expr → Nat
-cantLit ( Const _ ) = S Z -- { L1 }
-cantLit ( Rango _ _ ) = S Z -- { L2 }
-cantLit ( Suma a b ) = suma ( cantLit a ) ( cantLit b ) -- { L3 }
-cantLit ( Resta a b ) = suma ( cantLit a ) ( cantLit b ) -- { L4 }
-cantLit ( Mult a b ) = suma ( cantLit a ) ( cantLit b ) -- { L5 }
-cantLit ( Div a b ) = suma ( cantLit a ) ( cantLit b ) -- { L6 }
-
-
-cantOp :: Expr → Nat
-cantOp ( Const _ ) = Z -- { O1 }
-cantOp ( Rango _ _ ) = Z -- { O2 }
-cantOp ( Suma a b ) = S ( suma ( cantOp a ) ( cantOp b )) -- { O3 }
-cantOp ( Resta a b ) = S ( suma ( cantOp a ) ( cantOp b )) -- { O4 }
-cantOp ( Mult a b ) = S ( suma ( cantOp a ) ( cantOp b )) -- { O5 }
-cantOp ( Div a b ) = S ( suma ( cantOp a ) ( cantOp b )) -- { O6 }
-
-
-La propiedad a demostrar queda expresada de la siguiente manera:
-∀e :: Expr · cantLit e = S (cantOp e)
-
-
-
 -- A)
 P(e) = cantLit e = S (cantOp e)
-
-
 
 
 
@@ -43,28 +12,25 @@ P(e) = cantLit e = S (cantOp e)
 ∀ x :: Expr . ∀ y :: Expr . P(x) and P(y) => P(Mult x y)
 ∀ x :: Expr . ∀ y :: Expr . P(x) and P(y) => P(Div x y)
 
-∃
 
 
+PREGUNTAR POR EXISTE O PARATODO EN LOS CASO BASE CUAL HAY QUE USAR.)))))))))))))))))))))))))))))))))))))))))
+-- C)
+Casos Base: 
 
--- C++)
-{CONMUT} ∀n,m :: Nat . suma n m = suma m n
-
-
-
-
- casos base: e = Const a ; e = Rango a b
- a,b Floats (hay que especificar formalmente esto?? como?? usar paratodo o existe??)
-
+∃ a :: Float . Const a
  caso e = Const a:
  Quiero ver que vale P(Const a):: cantLit (Const a) = S (cantOp (Const a))
 
        cantLit (Const a) = S (CantOp (Const a))   
  {L1 (lado izq)}     S Z = S (CantOp (Const a))       
- {O1 (lado der)}     S Z = S Z     
+ {O1 (lado der)}     S Z = S Z    
 
 Caso base de Const cumple
 
+
+
+∃ a :: Float . ∃ b :: Float .
  caso e = rango a b
  Quiero ver que vale P(rango a b):: cantLit (Rango a b) = S (cantOp(Rango a b))
 
@@ -72,20 +38,28 @@ Caso base de Const cumple
  {L2 (lado izq)}   S Z = S (cantOp(Rango a b))   
  {O2 (lado der)}   S Z = S Z
 
-caso base de Rango cumple 
+Caso base de Rango cumple
+
+
+
 
 Paso inductivo:
-∀ x :: Expr . ∀ y :: Expr . (cantLit (x) = S (cantOp(x)) and (cantLit (y) = S (cantOp(y)))) => cantLit (Suma x y) = S (cantOp(Suma x y))
-
+∀ x :: Expr . ∀ y :: Expr . (cantLit (x) = S (cantOp(x)) and (cantLit (y) = S (cantOp(y)))) => (cantLit (Suma x y) = S (cantOp(Suma x y)))
 
 
 QVQ vale P(Suma x y) asuminendo P(x) and P(y), donde
-    P(x): cantLit (x) = S (cantOp(x))
-    P(y): cantLit (y) = S (cantOp(y))
+    P(x): cantLit x = S (cantOp x)
+    P(y): cantLit y = S (cantOp y)
 
 P(Suma x y): cantLit (Suma x y) = S (cantOp(Suma x y))
 
         	cantLit (Suma x y) = S (cantOp(Suma x y))
-{L3 (lado izq)}          suma (cantLit x) (cantLit y) = S (cantOp(Suma x y))
-{O3 (lado der)}          suma (cantLit x) (cantLit y) = S (suma (cantOp x) (cantOp y))
-{HI}                     suma (S (cantOp(x))) (S (cantOp(y))) = cantOp(x)
+{L3 (lado izq)}          suma (cantLit x) (cantLit y)       = S (cantOp(Suma x y))
+{O3 (lado der)}          suma (cantLit x) (cantLit y)       = S (S (suma (cantOp x) (cantOp y)))
+{HI (lado izq)}          suma (S (cantOp x)) (S (cantOp y)) = S (S (suma (cantOp x) (cantOp y)))
+{S2 (lado izq)}         S (suma (cantOp x) (S (cantOp y)))  = S (S (suma (cantOp x) (cantOp y)))
+{CONMUT (lado izq)}     S (suma (S (cantOp y)) (cantOp x))  = S (S (suma (cantOp x) (cantOp y)))
+{S2 (lado izq)}         S (S (suma (cantOp y) (cantOp x)))  = S (S (suma (cantOp x) (cantOp y)))
+{CONMUT (lado izq)}     S (S (suma (cantOp x) (cantOp y)))  = S (S (suma (cantOp x) (cantOp y)))
+
+                        
