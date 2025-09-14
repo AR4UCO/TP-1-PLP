@@ -33,14 +33,15 @@ data Histograma = Histograma Float Float [Int]
 -- valores en el rango y 2 casilleros adicionales para los valores fuera del rango.
 -- Require que @l < u@ y @n >= 1@.
 vacio :: Int -> (Float, Float) -> Histograma
+vacio 0 _ = Histograma 0 0 [] -- esto no es necesario pues el requiere implica que n >= 1, hay que cambiar el test que hicimos sobre esto
 vacio n (l, u) = Histograma l ( (u - l) / fromIntegral n) (replicate (n+2) 0)
 
 -- | Agrega un valor al histograma.
 agregar :: Float -> Histograma -> Histograma
 agregar i (Histograma f1 f2 l) =  Histograma f1 f2 (actualizarElem ind (+1) l)
-                                  where ind  | i<f1= 0
-                                             | i> (f1 + (f2 * fromIntegral ((length l) - 2))) = (length l) - 1
-                                             | otherwise= floor ((i-f1) / f2) + 1
+                                  where ind  | i < f1 = 0
+                                             | i > (f1 + (f2 * fromIntegral (length l) - 2)) = length l - 1
+                                             | otherwise = floor ((i-f1) / f2) + 1
 
 
 -- | Arma un histograma a partir de una lista de números reales con la cantidad de casilleros y rango indicados.
@@ -71,17 +72,13 @@ casPorcentaje (Casillero _ _ _ p) = p
 
 -- | Dado un histograma, devuelve la lista de casilleros con sus límites, cantidad y porcentaje.
 casilleros :: Histograma -> [Casillero]
-
---casilleros Histograma f1 f2 l = [Casillero (min) (max) (cant) (%)]
-
 casilleros (Histograma f1 f2 l) =
   let
-    minimos = {--crear una lista con los rangos minimos ~> --} infinitoNegativo : [f1, f1+f2..f1+f2* fromIntegral (length l -2)]
-    maximos = {--crear una lista con los rangos maximos ~> --} [f1, f1+f2..f1+f2* fromIntegral (length l -2)] ++ [infinitoPositivo]
-    apariciones = l {--(la lista del histograma)--}
-    promedio l = map (\ x -> fromIntegral x / fromIntegral (sum l)*100) l
+    minimos = infinitoNegativo : [f1, f1+f2..f1 + f2 * fromIntegral (length l -2)] 
+    maximos =  [f1, f1+f2..f1 + f2 * fromIntegral (length l -2)] ++ [infinitoPositivo] 
+    apariciones = l                                                                 
+    promedio l | sum l == 0 = replicate (length l) 0.0 
+               | otherwise = map (\ x -> fromIntegral x / fromIntegral (sum l) * 100) l
   in zipWith4 Casillero minimos maximos apariciones (promedio l)
 
--- casilleros Histograma f1 f2 l = foldr Casillero
--- armarCasillero :: [[]] -> Casillero
 

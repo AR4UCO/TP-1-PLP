@@ -41,7 +41,9 @@ testsAlinearDerecha =
   test
     [ alinearDerecha 6 "hola" ~?= "  hola",
       alinearDerecha 10 "incierticalc" ~?= "incierticalc",
-      completar
+      alinearDerecha 15 "tests" ~?= "          tests",
+      alinearDerecha 10 "a" ~?= "         a",
+      alinearDerecha 0 "esunsecretooo" ~?= "esunsecretooo"
     ]
 
 testsActualizarElem :: Test
@@ -49,7 +51,8 @@ testsActualizarElem =
   test
     [ actualizarElem 0 (+ 10) [1, 2, 3] ~?= [11, 2, 3],
       actualizarElem 1 (+ 10) [1, 2, 3] ~?= [1, 12, 3],
-      completar
+      actualizarElem 2 (* 10) [1, 2, 3] ~?= [1, 2, 30],
+      actualizarElem 4 (/ 10) [1, 12, 3, 7, 10000] ~?= [1, 12, 3, 7,1000]
     ]
 
 testsVacio :: Test
@@ -67,7 +70,8 @@ testsVacio =
               Casillero 4 6 0 0,
               Casillero 6 infinitoPositivo 0 0
             ],
-      completar
+      casilleros (vacio 0 (0, 0))
+        ~?= []
     ]
 
 testsAgregar :: Test
@@ -95,14 +99,29 @@ testsAgregar =
                   Casillero 4 6 0 0,
                   Casillero 6 infinitoPositivo 0 0
                 ],
-          completar
+                    casilleros (agregar 7 h0)
+            ~?= [ Casillero infinitoNegativo 0 0 0, 
+                  Casillero 0 2 0 0,
+                  Casillero 2 4 0 0,
+                  Casillero 4 6 0 0,
+                  Casillero 6 infinitoPositivo 1 100 
+                ],
+                casilleros (agregar (-1000) h0)
+            ~?= [ Casillero infinitoNegativo 0 1 100,
+                  Casillero 0 2 0 0, 
+                  Casillero 2 4 0 0,
+                  Casillero 4 6 0 0,
+                  Casillero 6 infinitoPositivo 0 0
+                ]
+                
         ]
 
 testsHistograma :: Test
 testsHistograma =
   test
     [ histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5)))),
-      completar
+      histograma 6 (1, 10) [7,5,9,8] ~?=agregar 8 (agregar 9 (agregar 5 (agregar 7 (vacio 6 (1, 10))))),
+      histograma 0 (0, 0) [] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 0 (0, 0))))
     ]
 
 testsCasilleros :: Test
@@ -122,19 +141,33 @@ testsCasilleros =
               Casillero 4.0 6.0 0 0.0,
               Casillero 6.0 infinitoPositivo 0 0.0
             ],
-      completar
+            casilleros (agregar 2 (vacio 5 (2, 17)))
+        ~?= [ Casillero infinitoNegativo 2.0 0 0.0,
+              Casillero 2.0 5.0 1 100.0,
+              Casillero 5.0 8.0 0 0.0,
+              Casillero 8.0 11.0 0 0.0,
+              Casillero 11.0 14.0 0 0.0,
+              Casillero 14.0 17.0 0 0.0,
+              Casillero 17.0 infinitoPositivo 0 0.0
+            ],
+            casilleros (histograma 0 (0, 0) [])
+        ~?= []
     ]
 
 testsRecr :: Test
 testsRecr =
   test
-    [ completar
+    [ 5 ~?= recrExpr id (\x y -> fst (dameUno (x, y) genFijo)) 
+                     (\_ x _ y -> x + y) (\_ x _ y -> x - y) (\_ x _ y -> x * y)
+                     (\_ x _ y -> x / y) (Suma (Const 3) (Const 2))
     ]
 
 testsFold :: Test
 testsFold =
   test
-    [ completar
+    [ 5 ~?= foldExpr id (\x y -> fst (dameUno (x, y) genFijo)) (+) (-) (*) (/) (Suma (Const 3) (Const 2)),
+      18 ~?= foldExpr id (\x y -> fst (dameUno (x, y) genFijo)) (+) (-) (*) (/)
+                       (Resta (Mult (Const 5) (Const 4)) (Div (Const 4) (Const 2)))
     ]
 
 testsEval :: Test
@@ -144,18 +177,18 @@ testsEval =
       fst (eval (Suma (Rango 1 5) (Const 1)) (genNormalConSemilla 0)) ~?= 3.7980492,
       -- el primer rango evalua a 2.7980492 y el segundo a 3.1250308
       fst (eval (Suma (Rango 1 5) (Rango 1 5)) (genNormalConSemilla 0)) ~?= 5.92308,
-      completar
+      completar -- como hacemos estos tests??
     ]
 
 testsArmarHistograma :: Test
 testsArmarHistograma =
   test
-    [completar]
+    [completar] -- como hacemos estos tests??
 
 testsEvalHistograma :: Test
 testsEvalHistograma =
   test
-    [completar]
+    [completar] -- como hacemos estos tests??
 
 testsParse :: Test
 testsParse =

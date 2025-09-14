@@ -1,5 +1,6 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use infix" #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-} -- que es esto? se puede sacar?
+{-# HLINT ignore "Use infix" #-} -- esto es del hls, esto si se puede sacar
+{-# HLINT ignore "Use first" #-} -- esto es del hls, esto si se puede sacar
 module Expr
   ( Expr (..),
     recrExpr,
@@ -26,13 +27,13 @@ data Expr
 
 
 
-recrExpr :: (Float -> b) 
-         -> (Float -> Float -> b) 
-         -> (Expr -> b -> Expr -> b -> b) 
-         -> (Expr -> b -> Expr -> b -> b) 
-         -> (Expr -> b -> Expr -> b -> b) 
-         -> (Expr -> b -> Expr -> b -> b) 
-         -> Expr 
+recrExpr :: (Float -> b)
+         -> (Float -> Float -> b)
+         -> (Expr -> b -> Expr -> b -> b)
+         -> (Expr -> b -> Expr -> b -> b)
+         -> (Expr -> b -> Expr -> b -> b)
+         -> (Expr -> b -> Expr -> b -> b)
+         -> Expr
          -> b
 recrExpr f1 f2 f3 f4 f5 f6 a = case a of
                                Const x -> f1 x
@@ -45,13 +46,13 @@ recrExpr f1 f2 f3 f4 f5 f6 a = case a of
 
 
 
-foldExpr :: (Float -> b) 
-         -> (Float -> Float -> b) 
-         -> (b -> b -> b) 
-         -> (b -> b -> b) 
-         -> (b -> b -> b) 
-         -> (b -> b -> b) 
-         -> Expr 
+foldExpr :: (Float -> b)
+         -> (Float -> Float -> b)
+         -> (b -> b -> b)
+         -> (b -> b -> b)
+         -> (b -> b -> b)
+         -> (b -> b -> b)
+         -> Expr
          -> b
 foldExpr f1 f2 f3 f4 f5 f6 a = case a of
                                 Const x -> f1 x
@@ -63,55 +64,25 @@ foldExpr f1 f2 f3 f4 f5 f6 a = case a of
                               where rec = foldExpr f1 f2 f3 f4 f5 f6
 
 
-
-
+-- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float
-eval expr = foldExpr 
-                     (\x g -> (x, g)) 
-                     (\x y g-> dameUno (x, y) g) 
+eval expr = foldExpr
+                     (\x g -> (x, g))
+                     (\x y g-> dameUno (x, y) g)
                      (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x + y, g2)) --suma
                      (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x - y, g2)) --resta
                      (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x * y, g2)) --mult
                      (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x / y, g2)) --div
                       expr
-
-
+-- podriamos explicar por lo menos en el caso de la suma que estamos haciendo
 
 
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
 -- a partir del resultado de tomar @n@ muestras de @f@ usando el generador @g@.
 armarHistograma :: Int -> Int -> G Float -> G Histograma
 armarHistograma m n f g = let valores = muestra f n g
-                            in (histograma m (rango95 (fst valores)) (fst valores), (snd valores))
-
-
-
--- Aplica una función múltiples veces a un generador.
--- muestra :: G a -> Int -> G [a]
--- muestra _ 0 g = ([], g)
--- muestra f n g = (x : xs, sf)
---   where
---     (x, s1) = f g
---     (xs, sf) = muestra f (n - 1) s1
-
-
--- | Dada una lista finita no vacía de números reales devuelve un
--- rango con un 95% de confianza que contienen los valores de la lista
--- asumiendo que es una muestra de una distribución normal.
--- Si todos los números son iguales, devuelve el rango @(valor-1, valor+1)@.
---rango95 :: [Float] -> (Float, Float)
---rango95 xs = (promedio - s, promedio + s)
---  where
---    cantidad = fromIntegral (length xs)
---    promedio = sum xs / cantidad
--- desviacion = sqrt $ sum [(x - promedio) ^ 2 | x <- xs] / cantidad
--- s = if desviacion == 0 then 1 else desviacion * 1.96
-
-
-
---histograma :: Int -> (Float, Float) -> [Float] -> Histograma
---histograma m r l = foldr agregar (vacio n r) l
-
+                            in (histograma m (rango95 (fst valores)) (fst valores), snd valores)
+                            -- aca lo que devolvemos es de tipo (Histograma, Gen) donde el histograma lo armamos a partir de ....
 
 
 
@@ -122,7 +93,7 @@ evalHistograma :: Int -> Int -> Expr -> G Histograma
 evalHistograma m n expr g = armarHistograma m n (eval expr) g
 
 
-
+-- ESTO LO BORRAMOS?
 -- Podemos armar histogramas que muestren las n evaluaciones en m casilleros.
 -- >>> evalHistograma 11 10 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
 -- COMPLETAR EJERCICIO 10
@@ -133,41 +104,24 @@ evalHistograma m n expr g = armarHistograma m n (eval expr) g
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
-mostrar = recrExpr 
+mostrar = recrExpr
          (\x -> show x)   --const
-         (\x y -> show x ++ " ~ " ++ show y)   --rango ∼
-         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CEDiv]) x 
-                                 ++ " + " 
+         (\x y -> show x ++ "~" ++ show y)   --rango ∼
+         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEDiv, CEMult]) x
+                                 ++ " + "
                                  ++ maybeParen (elem (constructor tipoDeY) [CEMult,CEDiv]) y )   --sum
-         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEMult,CEDiv,CEResta]) x 
-                                 ++  " - " 
+         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEMult,CEDiv,CEResta]) x
+                                 ++  " - "
                                  ++ maybeParen (elem (constructor tipoDeY) [CEMult,CEDiv,CEResta]) y)   --rest
-         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CESuma]) x  
-                                 ++ " * " 
+         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CESuma]) x
+                                 ++ " * "
                                  ++ maybeParen (elem (constructor tipoDeY) [CEResta,CESuma]) y )   --mult
-         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CESuma]) x  
-                                 ++ " / " 
+         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CESuma]) x
+                                 ++ " / "
                                  ++ maybeParen (elem (constructor tipoDeY) [CEResta,CESuma]) y )   --div
-                  
 
 
--- SUMA
--- mult, div
-
---RESTA
--- resta, mult, div
-
---MULT
---Resta, suma
-
---Div
---resta,suma
- 
--- >>> mostrar (Div(Suma(Rango 1 5) (Mult(Const 3) (Rango 100 105))) (Const 2))
--- "(1.0 ~ 5.0 + (3.0 * 100.0 ~ 105.0)) / 2.0"
--- >>> mostrar (Resta (Resta (Resta (Const 1) (Const 2)) (Const 3)) (Const 4))
--- "((1.0 - 2.0) - 3.0) - 4.0"
-
+                                 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
 
@@ -184,4 +138,3 @@ constructor (Div _ _) = CEDiv
 maybeParen :: Bool -> String -> String
 maybeParen True s = "(" ++ s ++ ")"
 maybeParen False s = s
-
