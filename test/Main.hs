@@ -6,7 +6,7 @@ import Expr
 import Expr.Parser
 import GHC.Stack (HasCallStack)
 import Generador
-import Histograma
+import Histograma 
 import Test.HUnit
 import Util
 
@@ -185,14 +185,18 @@ testsArmarHistograma :: Test
 testsArmarHistograma =
   test
     [ fst (armarHistograma 2 3 (dameUno (1, 3)) genFijo) ~?= histograma 2 (1, 3) [2,2,2],
-      fst (armarHistograma 1 2 (dameUno (4, 6)) genFijo) ~?= histograma 1 (4,6) [3,3]
-  
+      fst (armarHistograma 1 2 (dameUno (4, 6)) genFijo) ~?= histograma 1 (4,6) [4,4]
     ]
 
 testsEvalHistograma :: Test
 testsEvalHistograma =
   test
-    [completar] -- como hacemos estos tests??
+    [ fst (evalHistograma 3 2 (Suma (Const 1) (Const 3)) (genNormalConSemilla 0))
+      ~?= histograma 3 (3,5) [4,4],
+      fst (evalHistograma 3 2 (Suma (Rango 0 2) (Rango 2 4)) (genFijo))
+      ~?= histograma 3 (3,5) [4,4]
+    ] 
+
 
 testsParse :: Test
 testsParse =

@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-} -- que es esto? se puede sacar?
-{-# HLINT ignore "Use infix" #-} -- esto es del hls, esto si se puede sacar
-{-# HLINT ignore "Use first" #-} -- esto es del hls, esto si se puede sacar
 module Expr
   ( Expr (..),
     recrExpr,
@@ -95,17 +92,13 @@ armarHistograma m n f g = let valores = muestra f n g
 evalHistograma :: Int -> Int -> Expr -> G Histograma
 evalHistograma m n expr g = armarHistograma m n (eval expr) g
 
-
--- ESTO LO BORRAMOS?
 -- Podemos armar histogramas que muestren las n evaluaciones en m casilleros.
 -- >>> evalHistograma 11 10 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
--- (Histograma 102.005486 0.6733038 [1,0,0,0,1,3,1,2,0,0,1,0,1],<Gen>)
+-- (Histograma 102.005486 0.6733038 [1,0,0,0,1,3,1,2,0,0,1,1,0],<Gen>)
 
 -- >>> evalHistograma 11 10000 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
--- (Histograma 102.273895 0.5878462 [239,288,522,810,1110,1389,1394,1295,1076,793,348,0,736],<Gen>)
+-- (Histograma 102.273895 0.5878462 [239,288,522,810,1110,1389,1394,1295,1076,793,520,310,254],<Gen>)
 
--- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
--- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
 mostrar = recrExpr
          (\x -> show x)   --const
