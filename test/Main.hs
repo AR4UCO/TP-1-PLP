@@ -1,5 +1,6 @@
 module Main (main) where
 
+
 import App
 import Expr
 import Expr.Parser
@@ -70,8 +71,10 @@ testsVacio =
               Casillero 4 6 0 0,
               Casillero 6 infinitoPositivo 0 0
             ],
-      casilleros (vacio 0 (0, 0))
-        ~?= []
+      casilleros (vacio 1 (0, 3))
+        ~?= [Casillero infinitoNegativo 0 0 0,
+             Casillero 0 3 0 0,
+             Casillero 3 infinitoPositivo 0 0]
     ]
 
 testsAgregar :: Test
@@ -120,8 +123,7 @@ testsHistograma :: Test
 testsHistograma =
   test
     [ histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5)))),
-      histograma 6 (1, 10) [7,5,9,8] ~?=agregar 8 (agregar 9 (agregar 5 (agregar 7 (vacio 6 (1, 10))))),
-      histograma 0 (0, 0) [] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 0 (0, 0))))
+      histograma 6 (1, 10) [7,5,9,8] ~?=agregar 8 (agregar 9 (agregar 5 (agregar 7 (vacio 6 (1, 10)))))
     ]
 
 testsCasilleros :: Test
@@ -149,9 +151,7 @@ testsCasilleros =
               Casillero 11.0 14.0 0 0.0,
               Casillero 14.0 17.0 0 0.0,
               Casillero 17.0 infinitoPositivo 0 0.0
-            ],
-            casilleros (histograma 0 (0, 0) [])
-        ~?= []
+            ]
     ]
 
 testsRecr :: Test
@@ -177,13 +177,17 @@ testsEval =
       fst (eval (Suma (Rango 1 5) (Const 1)) (genNormalConSemilla 0)) ~?= 3.7980492,
       -- el primer rango evalua a 2.7980492 y el segundo a 3.1250308
       fst (eval (Suma (Rango 1 5) (Rango 1 5)) (genNormalConSemilla 0)) ~?= 5.92308,
-      completar -- como hacemos estos tests??
+      fst (eval (Mult (Const 5) (Const 5)) genFijo) ~?= 25.0,
+      fst (eval (Div (Rango 0 20) (Rango 1 3)) genFijo) ~?= 5.0
     ]
 
 testsArmarHistograma :: Test
 testsArmarHistograma =
   test
-    [completar] -- como hacemos estos tests??
+    [ fst (armarHistograma 2 3 (dameUno (1, 3)) genFijo) ~?= histograma 2 (1, 3) [2,2,2],
+      fst (armarHistograma 1 2 (dameUno (4, 6)) genFijo) ~?= histograma 1 (4,6) [3,3]
+  
+    ]
 
 testsEvalHistograma :: Test
 testsEvalHistograma =

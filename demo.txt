@@ -14,11 +14,11 @@ P(e) = cantLit e = S (cantOp e)
 
 
 
-PREGUNTAR POR EXISTE O PARATODO EN LOS CASO BASE CUAL HAY QUE USAR.)))))))))))))))))))))))))))))))))))))))))
+
 -- C)
 Casos Base: 
 
-∃ a :: Float . Const a
+∀ a :: Float . 
  caso e = Const a:
  Quiero ver que vale P(Const a):: cantLit (Const a) = S (cantOp (Const a))
 
@@ -30,13 +30,13 @@ Caso base de Const cumple
 
 
 
-∃ a :: Float . ∃ b :: Float .
- caso e = rango a b
- Quiero ver que vale P(rango a b):: cantLit (Rango a b) = S (cantOp(Rango a b))
+∀ a :: Float . ∀ b :: Float .
+ caso e = Rango a b
+ Quiero ver que vale P(Rango a b):: cantLit (Rango a b) = S (cantOp(Rango a b))
 
-   cantLit (Rango a b) = S (cantOp(Rango a b))
- {L2 (lado izq)}   S Z = S (cantOp(Rango a b))   
- {O2 (lado der)}   S Z = S Z
+      cantLit (Rango a b) = S (cantOp(Rango a b))
+ {L2 (lado izq)}      S Z = S (cantOp(Rango a b))   
+ {O2 (lado der)}      S Z = S Z
 
 Caso base de Rango cumple
 
@@ -53,7 +53,7 @@ QVQ vale P(Suma x y) asuminendo P(x) and P(y), donde
 
 P(Suma x y): cantLit (Suma x y) = S (cantOp(Suma x y))
 
-        	cantLit (Suma x y) = S (cantOp(Suma x y))
+        	                             cantLit (Suma x y) = S (cantOp(Suma x y))
 {L3 (lado izq)}          suma (cantLit x) (cantLit y)       = S (cantOp(Suma x y))
 {O3 (lado der)}          suma (cantLit x) (cantLit y)       = S (S (suma (cantOp x) (cantOp y)))
 {HI (lado izq)}          suma (S (cantOp x)) (S (cantOp y)) = S (S (suma (cantOp x) (cantOp y)))
@@ -62,4 +62,3 @@ P(Suma x y): cantLit (Suma x y) = S (cantOp(Suma x y))
 {S2 (lado izq)}         S (S (suma (cantOp y) (cantOp x)))  = S (S (suma (cantOp x) (cantOp y)))
 {CONMUT (lado izq)}     S (S (suma (cantOp x) (cantOp y)))  = S (S (suma (cantOp x) (cantOp y)))
 
-                        

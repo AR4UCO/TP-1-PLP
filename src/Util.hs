@@ -12,6 +12,7 @@ alinearDerecha n s = if n <= length s then s else replicate (n - length s) ' ' +
 actualizarElem :: Int -> (a -> a) -> [a] -> [a]
 actualizarElem i f l =  [ if indice == i then f x else x | (x,indice) <- zip l [0..(length l)]]
 
+
 -- | infinito positivo (Haskell no tiene literal para +infinito)
 infinitoPositivo :: Float
 infinitoPositivo = 1 / 0

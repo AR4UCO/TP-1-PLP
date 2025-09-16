@@ -130,7 +130,7 @@ testRango95 :: (Float, Float) -> Int -> Gen -> (Float, Float)
 testRango95 (l, u) n g = rango95 $ fst $ muestra (dameUno (l, u)) n g
 
 -- >>> conGenNormal (testRango95 (1, 5) 100000)
--- (0.9996053,4.9987354)
+-- (1.0055499,4.9998307)
 
 -- >>> testRango95 (1, 5) 100 genFijo
 -- (2.0,4.0)

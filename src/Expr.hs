@@ -74,7 +74,10 @@ eval expr = foldExpr
                      (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x * y, g2)) --mult
                      (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x / y, g2)) --div
                       expr
--- podriamos explicar por lo menos en el caso de la suma que estamos haciendo
+-- para los casos recursivos, lo que se hace es pasar un lambda que reciba tres parametros, los cuales
+-- fx fy son de tipo G Float y g de tipo Gen. Luego se evalua fx g y eso devuelve algo de tipo (Float, Gen)
+-- usamos ese nuevo Gen en fy y luego hacemos la operacion correspondiente con los Floats al caso en el que estamos,
+-- guardando el ultimo generador devuelto por (y, g2). De esta manera tenemos siempre un generador distinto.
 
 
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
@@ -82,7 +85,7 @@ eval expr = foldExpr
 armarHistograma :: Int -> Int -> G Float -> G Histograma
 armarHistograma m n f g = let valores = muestra f n g
                             in (histograma m (rango95 (fst valores)) (fst valores), snd valores)
-                            -- aca lo que devolvemos es de tipo (Histograma, Gen) donde el histograma lo armamos a partir de ....
+-- como devolvemos algo de tipo (Histograma, Gen), el gen que pasamos es el ultimo generado en valores.
 
 
 
@@ -96,10 +99,10 @@ evalHistograma m n expr g = armarHistograma m n (eval expr) g
 -- ESTO LO BORRAMOS?
 -- Podemos armar histogramas que muestren las n evaluaciones en m casilleros.
 -- >>> evalHistograma 11 10 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
--- COMPLETAR EJERCICIO 10
+-- (Histograma 102.005486 0.6733038 [1,0,0,0,1,3,1,2,0,0,1,0,1],<Gen>)
 
 -- >>> evalHistograma 11 10000 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
--- COMPLETAR EJERCICIO 10
+-- (Histograma 102.273895 0.5878462 [239,288,522,810,1110,1389,1394,1295,1076,793,348,0,736],<Gen>)
 
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
@@ -107,18 +110,18 @@ mostrar :: Expr -> String
 mostrar = recrExpr
          (\x -> show x)   --const
          (\x y -> show x ++ "~" ++ show y)   --rango ∼
-         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEDiv, CEMult]) x
+         (\exprDeX x exprDeY y -> maybeParen (elem (constructor exprDeX) [CEDiv, CEMult]) x
                                  ++ " + "
-                                 ++ maybeParen (elem (constructor tipoDeY) [CEMult,CEDiv]) y )   --sum
-         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEMult,CEDiv,CEResta]) x
+                                 ++ maybeParen (elem (constructor exprDeY) [CEMult,CEDiv]) y )   -- caso suma
+         (\exprDeX x exprDeY y -> maybeParen (elem (constructor exprDeX) [CEMult,CEDiv,CEResta]) x
                                  ++  " - "
-                                 ++ maybeParen (elem (constructor tipoDeY) [CEMult,CEDiv,CEResta]) y)   --rest
-         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CESuma]) x
+                                 ++ maybeParen (elem (constructor exprDeY) [CEMult,CEDiv,CEResta]) y)   -- caso resta
+         (\exprDeX x exprDeY y -> maybeParen (elem (constructor exprDeX) [CEResta,CESuma]) x
                                  ++ " * "
-                                 ++ maybeParen (elem (constructor tipoDeY) [CEResta,CESuma]) y )   --mult
-         (\tipoDeX x tipoDeY y -> maybeParen (elem (constructor tipoDeX) [CEResta,CESuma]) x
+                                 ++ maybeParen (elem (constructor exprDeY) [CEResta,CESuma]) y )   -- caso mult
+         (\exprDeX x exprDeY y -> maybeParen (elem (constructor exprDeX) [CEResta,CESuma]) x
                                  ++ " / "
-                                 ++ maybeParen (elem (constructor tipoDeY) [CEResta,CESuma]) y )   --div
+                                 ++ maybeParen (elem (constructor exprDeY) [CEResta,CESuma]) y )   -- caso div
 
 
                                  
