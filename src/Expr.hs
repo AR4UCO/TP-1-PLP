@@ -63,18 +63,22 @@ foldExpr f1 f2 f3 f4 f5 f6 a = case a of
 
 -- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float
-eval expr = foldExpr
-                     (\x g -> (x, g))
-                     (\x y g-> dameUno (x, y) g)
-                     (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x + y, g2)) --suma
-                     (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x - y, g2)) --resta
-                     (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x * y, g2)) --mult
-                     (\fx fy g-> let (x, g1) = fx g ; (y, g2) = fy g1 in (x / y, g2)) --div
-                      expr
+eval = foldExpr
+                (\x g -> (x, g))
+                (\x y g-> dameUno (x, y) g)
+                (\fx fy g-> funAux fx fy (+) g) --suma
+                (\fx fy g-> funAux fx fy (-) g) --resta
+                (\fx fy g-> funAux fx fy (*) g) --mult
+                (\fx fy g-> funAux fx fy (/) g) --div
+                  where funAux fX fY oP gen = let (x, g1) = fX gen
+                                                  (y, g2) = fY g1
+                                                in (oP x y, g2)
 -- para los casos recursivos, lo que se hace es pasar un lambda que reciba tres parametros, los cuales
 -- fx fy son de tipo G Float y g de tipo Gen. Luego se evalua fx g y eso devuelve algo de tipo (Float, Gen)
 -- usamos ese nuevo Gen en fy y luego hacemos la operacion correspondiente con los Floats al caso en el que estamos,
 -- guardando el ultimo generador devuelto por (y, g2). De esta manera tenemos siempre un generador distinto.
+
+
 
 
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
@@ -101,23 +105,30 @@ evalHistograma m n expr g = armarHistograma m n (eval expr) g
 
 mostrar :: Expr -> String
 mostrar = recrExpr
-         (\x -> show x)   --const
+         show   --const
          (\x y -> show x ++ "~" ++ show y)   --rango ∼
-         (\exprDeX x exprDeY y -> maybeParen (elem (constructor exprDeX) [CEDiv, CEMult]) x
-                                 ++ " + "
-                                 ++ maybeParen (elem (constructor exprDeY) [CEMult,CEDiv]) y )   -- caso suma
-         (\exprDeX x exprDeY y -> maybeParen (elem (constructor exprDeX) [CEMult,CEDiv,CEResta]) x
-                                 ++  " - "
-                                 ++ maybeParen (elem (constructor exprDeY) [CEMult,CEDiv,CEResta]) y)   -- caso resta
-         (\exprDeX x exprDeY y -> maybeParen (elem (constructor exprDeX) [CEResta,CESuma]) x
-                                 ++ " * "
-                                 ++ maybeParen (elem (constructor exprDeY) [CEResta,CESuma]) y )   -- caso mult
-         (\exprDeX x exprDeY y -> maybeParen (elem (constructor exprDeX) [CEResta,CESuma]) x
-                                 ++ " / "
-                                 ++ maybeParen (elem (constructor exprDeY) [CEResta,CESuma]) y )   -- caso div
+         (\exprDeX x exprDeY y -> funAux2 exprDeX x exprDeY y CESuma)   -- caso suma
+         (\exprDeX x exprDeY y -> funAux2 exprDeX x exprDeY y CEResta)   -- caso resta
+         (\exprDeX x exprDeY y -> funAux2 exprDeX x exprDeY y CEMult)   -- caso mult
+         (\exprDeX x exprDeY y -> funAux2 exprDeX x exprDeY y CEDiv)   -- caso div
+
+            where funAux2 exprX x exprY y oP = maybeParen (constructor exprX `elem` listaSegunOP oP) x
+                                               ++ toStringOP oP
+                                               ++ maybeParen (constructor exprY `elem` listaSegunOP oP) y
+
+                  listaSegunOP oP = case oP of
+                    CESuma -> [CEDiv, CEMult]
+                    CEResta -> [CEMult,CEDiv,CEResta]
+                    CEMult -> [CEResta,CESuma, CEDiv]
+                    CEDiv -> [CEResta,CESuma]
+
+                  toStringOP oP = case oP of
+                    CESuma -> " + "
+                    CEResta -> " - "
+                    CEMult -> " * "
+                    CEDiv -> " / "
 
 
-                                 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
 

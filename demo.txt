@@ -20,7 +20,7 @@ Casos Base:
 
 ∀ a :: Float . 
  caso e = Const a:
- Quiero ver que vale P(Const a):: cantLit (Const a) = S (cantOp (Const a))
+ Quiero ver que vale P(Const a) =    cantLit (Const a) = S (cantOp (Const a))
 
        cantLit (Const a) = S (CantOp (Const a))   
  {L1 (lado izq)}     S Z = S (CantOp (Const a))       
@@ -32,7 +32,7 @@ Caso base de Const cumple
 
 ∀ a :: Float . ∀ b :: Float .
  caso e = Rango a b
- Quiero ver que vale P(Rango a b):: cantLit (Rango a b) = S (cantOp(Rango a b))
+ Quiero ver que vale P(Rango a b) =    cantLit (Rango a b) = S (cantOp(Rango a b))
 
       cantLit (Rango a b) = S (cantOp(Rango a b))
  {L2 (lado izq)}      S Z = S (cantOp(Rango a b))   
@@ -48,10 +48,10 @@ Paso inductivo:
 
 
 QVQ vale P(Suma x y) asuminendo P(x) and P(y), donde
-    P(x): cantLit x = S (cantOp x)
-    P(y): cantLit y = S (cantOp y)
+    P(x) =    cantLit x = S (cantOp x)
+    P(y) =    cantLit y = S (cantOp y)
 
-P(Suma x y): cantLit (Suma x y) = S (cantOp(Suma x y))
+P(Suma x y)=    cantLit (Suma x y) = S (cantOp(Suma x y))
 
         	                             cantLit (Suma x y) = S (cantOp(Suma x y))
 {L3 (lado izq)}          suma (cantLit x) (cantLit y)       = S (cantOp(Suma x y))

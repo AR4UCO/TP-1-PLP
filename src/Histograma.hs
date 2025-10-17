@@ -38,10 +38,10 @@ vacio n (l, u) = Histograma l ( (u - l) / fromIntegral n) (replicate (n+2) 0)
 
 -- | Agrega un valor al histograma.
 agregar :: Float -> Histograma -> Histograma
-agregar i (Histograma f1 f2 l) =  Histograma f1 f2 (actualizarElem ind (+1) l) --ind representa el indice donde se actualizara el elemento
-                                  where ind  | i < f1 = 0 -- ind fuera de rango
-                                             | i > (f1 + (f2 * fromIntegral (length l) - 2)) = length l - 1 --ind fuera de rango
-                                             | otherwise = floor ((i-f1) / f2) + 1 -- ind en rango
+agregar num (Histograma piso tamaño l) =  Histograma piso tamaño (actualizarElem ind (+1) l) --ind representa el indice donde se actualizara el elemento
+                                  where ind  | num < piso = 0 -- ind fuera de rango
+                                             | num > (piso + (tamaño * fromIntegral (length l) - 2)) = length l - 1 --ind fuera de rango
+                                             | otherwise = floor ((num-piso) / tamaño) + 1 -- ind en rango
 
 
 -- | Arma un histograma a partir de una lista de números reales con la cantidad de casilleros y rango indicados.
@@ -76,9 +76,7 @@ casilleros (Histograma f1 f2 l) =
   let -- creamos diferentes listas para luego usar zipwith4
     minimos = infinitoNegativo : [f1, f1+f2..f1 + f2 * fromIntegral (length l -2)]
     maximos =  [f1, f1+f2..f1 + f2 * fromIntegral (length l -2)] ++ [infinitoPositivo] 
-    apariciones = l -- no es necesaria realizar esta copia, pero es mas declarativa                                                                
     promedio l | sum l == 0 = replicate (length l) 0.0 -- caso que la lista de apariciones no tenga ningun elemento
-               | otherwise = map (\ x -> fromIntegral x / fromIntegral (sum l) * 100) l
-  in zipWith4 Casillero minimos maximos apariciones (promedio l)
-
+               | otherwise = map (\x -> fromIntegral x / fromIntegral (sum l) * 100) l
+  in zipWith4 Casillero minimos maximos l (promedio l)
 
