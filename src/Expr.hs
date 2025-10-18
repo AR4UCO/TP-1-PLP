@@ -66,11 +66,11 @@ eval :: Expr -> G Float
 eval = foldExpr
                 (\x g -> (x, g))
                 (\x y g-> dameUno (x, y) g)
-                (\fx fy g-> funAux fx fy (+) g) --suma
-                (\fx fy g-> funAux fx fy (-) g) --resta
-                (\fx fy g-> funAux fx fy (*) g) --mult
-                (\fx fy g-> funAux fx fy (/) g) --div
-                  where funAux fX fY oP gen = let (x, g1) = fX gen
+                (funAux (+)) --suma
+                (funAux(-)) --resta
+                (funAux (*)) --mult
+                (funAux (/)) --div
+                  where funAux oP fX fY gen = let (x, g1) = fX gen
                                                   (y, g2) = fY g1
                                                 in (oP x y, g2)
 -- para los casos recursivos, lo que se hace es pasar un lambda que reciba tres parametros, los cuales
@@ -107,12 +107,12 @@ mostrar :: Expr -> String
 mostrar = recrExpr
          show   --const
          (\x y -> show x ++ "~" ++ show y)   --rango ∼
-         (\exprDeX x exprDeY y -> funAux2 exprDeX x exprDeY y CESuma)   -- caso suma
-         (\exprDeX x exprDeY y -> funAux2 exprDeX x exprDeY y CEResta)   -- caso resta
-         (\exprDeX x exprDeY y -> funAux2 exprDeX x exprDeY y CEMult)   -- caso mult
-         (\exprDeX x exprDeY y -> funAux2 exprDeX x exprDeY y CEDiv)   -- caso div
+         (funAux2 CESuma)   -- caso suma
+         (funAux2 CEResta)   -- caso resta
+         (funAux2 CEMult)   -- caso mult
+         (funAux2 CEDiv)   -- caso div
 
-            where funAux2 exprX x exprY y oP = maybeParen (constructor exprX `elem` listaSegunOP oP) x
+            where funAux2 oP exprX x exprY y = maybeParen (constructor exprX `elem` listaSegunOP oP) x
                                                ++ toStringOP oP
                                                ++ maybeParen (constructor exprY `elem` listaSegunOP oP) y
 
